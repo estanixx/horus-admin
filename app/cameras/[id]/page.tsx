@@ -2,43 +2,26 @@
 
 import type React from "react";
 
-import { withPageAuthRequired } from "@auth0/nextjs-auth0";
-import { useRouter } from "next/router";
 import { useEffect, useState } from "react";
-import Layout from "../../components/Layout";
-import LoadingSpinner from "../../src/components/LoadingSpinner";
-import Modal from "../../src/components/Modal";
+import Layout from "@components/Layout";
+import LoadingSpinner from "@components/LoadingSpinner";
+import Modal from "@components/Modal";
 import {
   graphqlClient,
   GET_CAMERA,
   GET_STATIONS,
   UPDATE_CAMERA,
   DELETE_CAMERA,
-} from "../../lib/api";
+} from "@/lib/graphql/";
+import { redirect, useParams } from "next/navigation";
 
-interface Camera {
-  id: number;
-  reference: string;
-  sizeX: number;
-  sizeY: number;
-  station_id: number;
-}
 
-interface Station {
-  id: number;
-  alias: string;
-}
 
-interface CameraForm {
-  reference: string;
-  sizeX: string;
-  sizeY: string;
-  station_id: string;
-}
+
+
 
 export default function CameraDetail() {
-  const router = useRouter();
-  const { id } = router.query;
+  const { id } = useParams();
   const [camera, setCamera] = useState<Camera | null>(null);
   const [stations, setStations] = useState<Station[]>([]);
   const [form, setForm] = useState<CameraForm>({
@@ -116,7 +99,7 @@ export default function CameraDetail() {
         id: Number.parseInt(id as string),
         input,
       });
-      router.push("/cameras");
+      redirect("/cameras");
     } catch (err) {
       setError("Failed to update camera");
       console.error("Update camera error:", err);
@@ -129,7 +112,7 @@ export default function CameraDetail() {
     try {
       setDeleting(true);
       await graphqlClient(DELETE_CAMERA, { id: Number.parseInt(id as string) });
-      router.push("/cameras");
+      redirect("/cameras");
     } catch (err) {
       setError("Failed to delete camera");
       console.error("Delete camera error:", err);
@@ -279,7 +262,7 @@ export default function CameraDetail() {
                   </button>
                   <button
                     type="button"
-                    onClick={() => router.push("/cameras")}
+                    onClick={() => redirect("/cameras")}
                     className="bg-gray-100 hover:bg-gray-200 text-gray-700 px-6 py-2 rounded-md font-medium transition-colors"
                   >
                     Cancel
@@ -375,5 +358,3 @@ export default function CameraDetail() {
     </Layout>
   );
 }
-
-export const getServerSideProps = withPageAuthRequired();

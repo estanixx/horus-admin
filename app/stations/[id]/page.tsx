@@ -2,18 +2,17 @@
 
 import type React from "react";
 
-import { withPageAuthRequired } from "@auth0/nextjs-auth0";
-import { useRouter } from "next/router";
 import { useEffect, useState } from "react";
-import Layout from "../../components/Layout";
-import LoadingSpinner from "../../src/components/LoadingSpinner";
-import Modal from "../../src/components/Modal";
+import Layout from "@components/Layout";
+import LoadingSpinner from "@components/LoadingSpinner";
+import Modal from "@components/Modal";
 import {
   graphqlClient,
   GET_STATION,
   UPDATE_STATION,
   DELETE_STATION,
-} from "../../lib/api";
+} from "@/lib/graphql/";
+import { redirect, useParams } from "next/navigation";
 
 interface Station {
   id: number;
@@ -47,8 +46,7 @@ interface StationForm {
 }
 
 export default function StationDetail() {
-  const router = useRouter();
-  const { id } = router.query;
+  const { id } = useParams();
   const [station, setStation] = useState<Station | null>(null);
   const [form, setForm] = useState<StationForm>({
     alias: "",
@@ -145,7 +143,7 @@ export default function StationDetail() {
         id: Number.parseInt(id as string),
         input,
       });
-      router.push("/stations");
+      redirect("/stations");
     } catch (err) {
       setError("Failed to update station");
       console.error("Update station error:", err);
@@ -160,7 +158,7 @@ export default function StationDetail() {
       await graphqlClient(DELETE_STATION, {
         id: Number.parseInt(id as string),
       });
-      router.push("/stations");
+      redirect("/stations");
     } catch (err) {
       setError("Failed to delete station");
       console.error("Delete station error:", err);
@@ -388,7 +386,7 @@ export default function StationDetail() {
                   </button>
                   <button
                     type="button"
-                    onClick={() => router.push("/stations")}
+                    onClick={() => redirect("/stations")}
                     className="bg-gray-100 hover:bg-gray-200 text-gray-700 px-6 py-2 rounded-md font-medium transition-colors"
                   >
                     Cancel
@@ -468,5 +466,3 @@ export default function StationDetail() {
     </Layout>
   );
 }
-
-export const getServerSideProps = withPageAuthRequired();

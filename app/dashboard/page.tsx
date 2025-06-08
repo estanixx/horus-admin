@@ -2,14 +2,10 @@
 
 import { useUser } from "@auth0/nextjs-auth0";
 import { useEffect, useState } from "react";
-import Layout from "../../components/Layout";
-import LoadingSpinner from "../../components/LoadingSpinner";
-import { graphqlClient, GET_STATIONS, GET_CAMERAS } from "../../lib/api";
+import Layout from "@components/Layout";
+import LoadingSpinner from "@components/LoadingSpinner";
+import { graphqlClient, GET_STATIONS, GET_CAMERAS } from "@/lib/graphql";
 
-interface DashboardStats {
-  totalStations: number;
-  totalCameras: number;
-}
 
 export default function Dashboard() {
   const { user } = useUser();
@@ -158,5 +154,3 @@ export default function Dashboard() {
     </Layout>
   );
 }
-
-// export const getServerSideProps = withPageAuthRequired();

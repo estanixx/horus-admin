@@ -2,11 +2,10 @@
 
 import type React from "react";
 
-import { withPageAuthRequired } from "@auth0/nextjs-auth0";
-import { useRouter } from "next/router";
 import { useState } from "react";
-import Layout from "../../components/Layout";
-import { graphqlClient, CREATE_STATION } from "../../lib/api";
+import Layout from "@components/Layout";
+import { graphqlClient, CREATE_STATION } from "@/lib/graphql/";
+import { redirect } from "next/navigation";
 
 interface StationForm {
   alias: string;
@@ -21,7 +20,6 @@ interface StationForm {
 }
 
 export default function CreateStation() {
-  const router = useRouter();
   const [form, setForm] = useState<StationForm>({
     alias: "",
     elevation: "",
@@ -75,7 +73,7 @@ export default function CreateStation() {
       };
 
       await graphqlClient(CREATE_STATION, { input });
-      router.push("/stations");
+      redirect("/stations");
     } catch (err) {
       setError("Failed to create station");
       console.error("Create station error:", err);
@@ -279,7 +277,7 @@ export default function CreateStation() {
               </button>
               <button
                 type="button"
-                onClick={() => router.push("/stations")}
+                onClick={() => redirect("/stations")}
                 className="bg-gray-100 hover:bg-gray-200 text-gray-700 px-6 py-2 rounded-md font-medium transition-colors"
               >
                 Cancel
@@ -291,5 +289,3 @@ export default function CreateStation() {
     </Layout>
   );
 }
-
-export const getServerSideProps = withPageAuthRequired();

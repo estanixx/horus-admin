@@ -1,83 +1,68 @@
 "use client";
 
-import { withPageAuthRequired } from "@auth0/nextjs-auth0";
 import Link from "next/link";
 import { useEffect, useState } from "react";
-import Layout from "../../components/Layout";
-import LoadingSpinner from "../../src/components/LoadingSpinner";
-import Modal from "../../src/components/Modal";
-import {
-  graphqlClient,
-  GET_CAMERAS,
-  GET_STATIONS,
-  DELETE_CAMERA,
-} from "../../lib/api";
-
-interface Camera {
-  id: number;
-  reference: string;
-  sizeX: number;
-  sizeY: number;
-  station_id: number;
-}
+import Layout from "@components/Layout";
+import LoadingSpinner from "@components/LoadingSpinner";
+import Modal from "@components/Modal";
+import { graphqlClient, GET_STATIONS, DELETE_STATION } from "@/lib/graphql/";
 
 interface Station {
   id: number;
   alias: string;
+  elevation: number;
+  lat: number;
+  lon: number;
+  country: string;
+  state: string;
+  city: string;
+  responsible?: string;
+  description?: string;
+  cameras: Array<{ id: number; reference: string }>;
 }
 
-export default function Cameras() {
-  const [cameras, setCameras] = useState<Camera[]>([]);
+export default function Stations() {
   const [stations, setStations] = useState<Station[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [deleteModal, setDeleteModal] = useState<{
     isOpen: boolean;
-    camera: Camera | null;
+    station: Station | null;
   }>({
     isOpen: false,
-    camera: null,
+    station: null,
   });
   const [deleting, setDeleting] = useState(false);
 
   useEffect(() => {
-    fetchData();
+    fetchStations();
   }, []);
 
-  async function fetchData() {
+  async function fetchStations() {
     try {
       setLoading(true);
-      const [camerasData, stationsData] = await Promise.all([
-        graphqlClient(GET_CAMERAS),
-        graphqlClient(GET_STATIONS),
-      ]);
-      setCameras(camerasData.cameras || []);
-      setStations(stationsData.stations || []);
+      const data = await graphqlClient(GET_STATIONS);
+      setStations(data.stations || []);
     } catch (err) {
-      setError("Failed to load cameras");
-      console.error("Cameras error:", err);
+      setError("Failed to load stations");
+      console.error("Stations error:", err);
     } finally {
       setLoading(false);
     }
   }
 
-  async function handleDelete(camera: Camera) {
+  async function handleDelete(station: Station) {
     try {
       setDeleting(true);
-      await graphqlClient(DELETE_CAMERA, { id: camera.id });
-      setCameras(cameras.filter((c) => c.id !== camera.id));
-      setDeleteModal({ isOpen: false, camera: null });
+      await graphqlClient(DELETE_STATION, { id: station.id });
+      setStations(stations.filter((s) => s.id !== station.id));
+      setDeleteModal({ isOpen: false, station: null });
     } catch (err) {
-      setError("Failed to delete camera");
+      setError("Failed to delete station");
       console.error("Delete error:", err);
     } finally {
       setDeleting(false);
     }
-  }
-
-  function getStationAlias(stationId: number) {
-    const station = stations.find((s) => s.id === stationId);
-    return station ? station.alias : `Station ${stationId}`;
   }
 
   return (
@@ -85,14 +70,14 @@ export default function Cameras() {
       <div className="space-y-6">
         <div className="flex justify-between items-center">
           <div>
-            <h1 className="text-3xl font-bold text-gray-900">Cameras</h1>
-            <p className="text-gray-600 mt-2">Manage camera devices</p>
+            <h1 className="text-3xl font-bold text-gray-900">Stations</h1>
+            <p className="text-gray-600 mt-2">Manage monitoring stations</p>
           </div>
           <Link
-            href="/cameras/create"
+            href="/stations/create"
             className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-md font-medium transition-colors"
           >
-            Create New Camera
+            Create New Station
           </Link>
         </div>
 
@@ -111,13 +96,19 @@ export default function Cameras() {
                 <thead className="bg-gray-50">
                   <tr>
                     <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      Reference
+                      Alias
                     </th>
                     <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      Resolution
+                      Location
                     </th>
                     <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      Station
+                      Coordinates
+                    </th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      Elevation
+                    </th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      Cameras
                     </th>
                     <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                       Actions
@@ -125,37 +116,46 @@ export default function Cameras() {
                   </tr>
                 </thead>
                 <tbody className="bg-white divide-y divide-gray-200">
-                  {cameras.map((camera) => (
-                    <tr key={camera.id} className="hover:bg-gray-50">
+                  {stations.map((station) => (
+                    <tr key={station.id} className="hover:bg-gray-50">
                       <td className="px-6 py-4 whitespace-nowrap">
-                        <div className="flex items-center">
-                          <span className="text-2xl mr-3">📹</span>
-                          <div>
-                            <div className="text-sm font-medium text-gray-900">
-                              {camera.reference}
-                            </div>
-                            <div className="text-sm text-gray-500">
-                              ID: {camera.id}
-                            </div>
+                        <div className="text-sm font-medium text-gray-900">
+                          {station.alias}
+                        </div>
+                        {station.responsible && (
+                          <div className="text-sm text-gray-500">
+                            by {station.responsible}
                           </div>
+                        )}
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap">
+                        <div className="text-sm text-gray-900">
+                          {station.city}, {station.state}
+                        </div>
+                        <div className="text-sm text-gray-500">
+                          {station.country}
                         </div>
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                        {camera.sizeX} × {camera.sizeY}
+                        {station.lat.toFixed(4)}, {station.lon.toFixed(4)}
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                        {getStationAlias(camera.station_id)}
+                        {station.elevation}m
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                        {station.cameras.length} camera
+                        {station.cameras.length !== 1 ? "s" : ""}
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap text-sm font-medium space-x-2">
                         <Link
-                          href={`/cameras/${camera.id}`}
+                          href={`/stations/${station.id}`}
                           className="text-blue-600 hover:text-blue-900"
                         >
                           Edit
                         </Link>
                         <button
                           onClick={() =>
-                            setDeleteModal({ isOpen: true, camera })
+                            setDeleteModal({ isOpen: true, station })
                           }
                           className="text-red-600 hover:text-red-900"
                         >
@@ -167,15 +167,15 @@ export default function Cameras() {
                 </tbody>
               </table>
             </div>
-            {cameras.length === 0 && (
+            {stations.length === 0 && (
               <div className="text-center py-12">
-                <span className="text-4xl mb-4 block">📹</span>
-                <p className="text-gray-500">No cameras found</p>
+                <span className="text-4xl mb-4 block">🏢</span>
+                <p className="text-gray-500">No stations found</p>
                 <Link
-                  href="/cameras/create"
+                  href="/stations/create"
                   className="text-blue-600 hover:text-blue-800 font-medium"
                 >
-                  Create your first camera
+                  Create your first station
                 </Link>
               </div>
             )}
@@ -185,17 +185,17 @@ export default function Cameras() {
 
       <Modal
         isOpen={deleteModal.isOpen}
-        onClose={() => setDeleteModal({ isOpen: false, camera: null })}
-        title="Delete Camera"
+        onClose={() => setDeleteModal({ isOpen: false, station: null })}
+        title="Delete Station"
       >
         <div className="space-y-4">
           <p className="text-gray-600">
-            Are you sure you want to delete the camera "
-            {deleteModal.camera?.reference}"? This action cannot be undone.
+            Are you sure you want to delete the station "
+            {deleteModal.station?.alias}"? This action cannot be undone.
           </p>
           <div className="flex space-x-3 justify-end">
             <button
-              onClick={() => setDeleteModal({ isOpen: false, camera: null })}
+              onClick={() => setDeleteModal({ isOpen: false, station: null })}
               className="px-4 py-2 text-gray-700 bg-gray-100 hover:bg-gray-200 rounded-md transition-colors"
               disabled={deleting}
             >
@@ -203,7 +203,7 @@ export default function Cameras() {
             </button>
             <button
               onClick={() =>
-                deleteModal.camera && handleDelete(deleteModal.camera)
+                deleteModal.station && handleDelete(deleteModal.station)
               }
               className="px-4 py-2 bg-red-600 hover:bg-red-700 text-white rounded-md transition-colors disabled:opacity-50"
               disabled={deleting}
@@ -216,5 +216,3 @@ export default function Cameras() {
     </Layout>
   );
 }
-
-export const getServerSideProps = withPageAuthRequired();

@@ -2,27 +2,13 @@
 
 import type React from "react";
 
-import { withPageAuthRequired } from "@auth0/nextjs-auth0";
-import { useRouter } from "next/router";
 import { useEffect, useState } from "react";
-import Layout from "../../components/Layout";
-import LoadingSpinner from "../../src/components/LoadingSpinner";
-import { graphqlClient, GET_STATIONS, CREATE_CAMERA } from "../../lib/api";
-
-interface Station {
-  id: number;
-  alias: string;
-}
-
-interface CameraForm {
-  reference: string;
-  sizeX: string;
-  sizeY: string;
-  station_id: string;
-}
+import Layout from "@components/Layout";
+import LoadingSpinner from "@components/LoadingSpinner";
+import { graphqlClient, GET_STATIONS, CREATE_CAMERA } from "@/lib/graphql/";
+import { redirect } from "next/navigation";
 
 export default function CreateCamera() {
-  const router = useRouter();
   const [stations, setStations] = useState<Station[]>([]);
   const [form, setForm] = useState<CameraForm>({
     reference: "",
@@ -80,7 +66,7 @@ export default function CreateCamera() {
 
       const result = await graphqlClient(CREATE_CAMERA, { input });
       setCreatedCamera(result.createCamera);
-      setJwtToken(result.createCamera.jwt_token || "JWT_TOKEN_PLACEHOLDER");
+      setJwtToken(result.createCamera.jwtToken || "JWT_TOKEN_PLACEHOLDER");
     } catch (err) {
       setError("Failed to create camera");
       console.error("Create camera error:", err);
@@ -192,7 +178,7 @@ export default function CreateCamera() {
 
           <div className="flex justify-center">
             <button
-              onClick={() => router.push("/cameras")}
+              onClick={() => redirect("/cameras")}
               className="bg-gray-600 hover:bg-gray-700 text-white px-6 py-2 rounded-md font-medium transition-colors"
             >
               Done - Return to Cameras
@@ -323,7 +309,7 @@ export default function CreateCamera() {
               </button>
               <button
                 type="button"
-                onClick={() => router.push("/cameras")}
+                onClick={() => redirect("/cameras")}
                 className="bg-gray-100 hover:bg-gray-200 text-gray-700 px-6 py-2 rounded-md font-medium transition-colors"
               >
                 Cancel
@@ -358,5 +344,3 @@ export default function CreateCamera() {
     </Layout>
   );
 }
-
-export const getServerSideProps = withPageAuthRequired();
