@@ -31,27 +31,28 @@ A comprehensive Next.js web application for managing stations and cameras within
 
 1. Clone the repository
 2. Install dependencies:
-   \`\`\`bash
-   npm install
-   \`\`\`
+   
+   ```bash
+   pnpm install
+   ```
 
-3. Copy the environment variables:
-   \`\`\`bash
+4. Copy the environment variables:
+   ```bash
    cp .env.local.example .env.local
-   \`\`\`
+   ```
 
-4. Configure your environment variables in `.env.local`:
+6. Configure your environment variables in `.env.local`:
 
    - Set up your Auth0 credentials
    - Configure your GraphQL API endpoint
    - Generate a secure AUTH0_SECRET using `openssl rand -hex 32`
 
-5. Run the development server:
-   \`\`\`bash
-   npm run dev
-   \`\`\`
+7. Run the development server:
+   ```bash
+   pnpm dev
+   ```
 
-6. Open [http://localhost:3000](http://localhost:3000) in your browser
+9. Open [http://localhost:3000](http://localhost:3000) in your browser
 
 ### Auth0 Setup
 
@@ -99,22 +100,21 @@ A comprehensive Next.js web application for managing stations and cameras within
 
 ## Environment Variables
 
-\`\`\`env
+```env
+   # Auth0 Configuration
 
-# Auth0 Configuration
-
-AUTH0_SECRET=your_32_byte_secret
-AUTH0_BASE_URL=http://localhost:3000
-AUTH0_ISSUER_BASE_URL=https://your-domain.us.auth0.com
-AUTH0_CLIENT_ID=your_client_id
-AUTH0_CLIENT_SECRET=your_client_secret
-AUTH0_AUDIENCE=https://your-domain.com/api
-
-# API Configuration
-
-GRAPHQL_API_URL=http://localhost:8000/graphql
-REST_API_URL=http://localhost:8000/
-\`\`\`
+   AUTH0_SECRET=your_32_byte_secret
+   AUTH0_BASE_URL=http://localhost:3000
+   AUTH0_ISSUER_BASE_URL=https://your-domain.us.auth0.com
+   AUTH0_CLIENT_ID=your_client_id
+   AUTH0_CLIENT_SECRET=your_client_secret
+   AUTH0_AUDIENCE=https://your-domain.com/api
+   
+   # API Configuration
+   
+   GRAPHQL_API_URL=http://localhost:8000/graphql
+   REST_API_URL=http://localhost:8000/
+   ```
 
 ## GraphQL Schema
 
@@ -145,10 +145,10 @@ The application expects the following GraphQL schema from your backend:
 
 ### Build for Production
 
-\`\`\`bash
-npm run build
-npm start
-\`\`\`
+```bash
+   pnpm run build
+   pnpm start
+   ```
 
 ### Environment Setup for Production
 
