@@ -7,7 +7,6 @@ export const CREATE_CAMERA = /* GraphQL */`
       sizeX
       sizeY
       stationId
-      jwtToken
     }
   }
 `;

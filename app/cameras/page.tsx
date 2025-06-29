@@ -17,7 +17,7 @@ interface Camera {
   reference: string;
   sizeX: number;
   sizeY: number;
-  station_id: number;
+  stationId: number;
 }
 
 interface Station {
@@ -143,7 +143,7 @@ export default function Cameras() {
                         {camera.sizeX} × {camera.sizeY}
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                        {getStationAlias(camera.station_id)}
+                        {getStationAlias(camera.stationId)}
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap text-sm font-medium space-x-2">
                         <Link

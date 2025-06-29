@@ -5,12 +5,12 @@ export * from "./mutation";
 const GRAPHQL_API_URL =
   process.env.GRAPHQL_API_URL || "http://localhost:8004/graphql";
 
-export async function graphqlClient(
+export async function graphqlClient<T>(
   query: string,
   variables?: any,
   req?: any,
   res?: any
-) {
+): Promise<T|null> {
   try {
     let accessToken = "";
 

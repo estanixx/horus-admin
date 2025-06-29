@@ -1,11 +1,10 @@
 "use client";
 
 import type React from "react";
-
 import { useState } from "react";
+import { useRouter } from "next/navigation"; // Import useRouter
 import Layout from "@components/Layout";
 import { graphqlClient, CREATE_STATION } from "@/lib/graphql/";
-import { redirect } from "next/navigation";
 
 interface StationForm {
   alias: string;
@@ -20,6 +19,7 @@ interface StationForm {
 }
 
 export default function CreateStation() {
+  const router = useRouter(); // Initialize the router
   const [form, setForm] = useState<StationForm>({
     alias: "",
     elevation: "",
@@ -72,14 +72,25 @@ export default function CreateStation() {
         description: form.description || null,
       };
 
-      await graphqlClient(CREATE_STATION, { input });
-      redirect("/stations");
+      const result = await graphqlClient(CREATE_STATION, { input });
+      console.log("Station created successfully:", result);
+
+      // On success, navigate using the router
+      router.push("/stations");
+      // You can also use router.replace('/stations') if you don't want
+      // the create page in the browser history.
+
     } catch (err) {
-      setError("Failed to create station");
+      setError("Failed to create station. Please check the console for details.");
       console.error("Create station error:", err);
     } finally {
       setLoading(false);
     }
+  }
+
+  // The Cancel button should also use the router for consistency
+  function handleCancel() {
+    router.push("/stations");
   }
 
   return (
@@ -103,6 +114,7 @@ export default function CreateStation() {
         <div className="bg-white rounded-lg shadow-sm border p-6">
           <form onSubmit={handleSubmit} className="space-y-6">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              {/* --- Alias Input --- */}
               <div>
                 <label
                   htmlFor="alias"
@@ -121,6 +133,7 @@ export default function CreateStation() {
                 />
               </div>
 
+              {/* --- Elevation Input --- */}
               <div>
                 <label
                   htmlFor="elevation"
@@ -140,6 +153,7 @@ export default function CreateStation() {
                 />
               </div>
 
+              {/* --- Latitude Input --- */}
               <div>
                 <label
                   htmlFor="lat"
@@ -159,6 +173,7 @@ export default function CreateStation() {
                 />
               </div>
 
+              {/* --- Longitude Input --- */}
               <div>
                 <label
                   htmlFor="lon"
@@ -178,6 +193,7 @@ export default function CreateStation() {
                 />
               </div>
 
+              {/* --- Country Input --- */}
               <div>
                 <label
                   htmlFor="country"
@@ -196,6 +212,7 @@ export default function CreateStation() {
                 />
               </div>
 
+              {/* --- State Input --- */}
               <div>
                 <label
                   htmlFor="state"
@@ -214,6 +231,7 @@ export default function CreateStation() {
                 />
               </div>
 
+              {/* --- City Input --- */}
               <div>
                 <label
                   htmlFor="city"
@@ -232,6 +250,7 @@ export default function CreateStation() {
                 />
               </div>
 
+              {/* --- Responsible Input --- */}
               <div>
                 <label
                   htmlFor="responsible"
@@ -250,6 +269,7 @@ export default function CreateStation() {
               </div>
             </div>
 
+            {/* --- Description Textarea --- */}
             <div>
               <label
                 htmlFor="description"
@@ -267,6 +287,7 @@ export default function CreateStation() {
               />
             </div>
 
+            {/* --- Action Buttons --- */}
             <div className="flex space-x-4">
               <button
                 type="submit"
@@ -277,7 +298,7 @@ export default function CreateStation() {
               </button>
               <button
                 type="button"
-                onClick={() => redirect("/stations")}
+                onClick={handleCancel}
                 className="bg-gray-100 hover:bg-gray-200 text-gray-700 px-6 py-2 rounded-md font-medium transition-colors"
               >
                 Cancel

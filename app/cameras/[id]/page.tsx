@@ -28,7 +28,7 @@ export default function CameraDetail() {
     reference: "",
     sizeX: "",
     sizeY: "",
-    station_id: "",
+    stationId: "",
   });
   const [loading, setLoading] = useState(true);
   const [updating, setUpdating] = useState(false);
@@ -57,7 +57,7 @@ export default function CameraDetail() {
           reference: cameraInfo.reference,
           sizeX: cameraInfo.sizeX.toString(),
           sizeY: cameraInfo.sizeY.toString(),
-          station_id: cameraInfo.station_id.toString(),
+          stationId: cameraInfo.stationId.toString(),
         });
       }
 
@@ -79,7 +79,7 @@ export default function CameraDetail() {
   async function handleUpdate(e: React.FormEvent) {
     e.preventDefault();
 
-    if (!form.reference || !form.sizeX || !form.sizeY || !form.station_id) {
+    if (!form.reference || !form.sizeX || !form.sizeY || !form.stationId) {
       setError("Please fill in all required fields");
       return;
     }
@@ -92,7 +92,7 @@ export default function CameraDetail() {
         reference: form.reference,
         sizeX: Number.parseInt(form.sizeX),
         sizeY: Number.parseInt(form.sizeY),
-        station_id: Number.parseInt(form.station_id),
+        stationId: Number.parseInt(form.stationId),
       };
 
       await graphqlClient(UPDATE_CAMERA, {
@@ -222,15 +222,15 @@ export default function CameraDetail() {
 
                 <div>
                   <label
-                    htmlFor="station_id"
+                    htmlFor="stationId"
                     className="block text-sm font-medium text-gray-700 mb-2"
                   >
                     Assign to Station *
                   </label>
                   <select
-                    id="station_id"
-                    name="station_id"
-                    value={form.station_id}
+                    id="stationId"
+                    name="stationId"
+                    value={form.stationId}
                     onChange={handleChange}
                     className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                     required
@@ -303,7 +303,7 @@ export default function CameraDetail() {
                     Station:
                   </span>
                   <span className="text-sm text-gray-900">
-                    {getStationAlias(camera.station_id)}
+                    {getStationAlias(camera.stationId)}
                   </span>
                 </div>
               </div>

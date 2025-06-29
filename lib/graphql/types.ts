@@ -3,14 +3,14 @@ type Camera = {
   reference: string;
   sizeX: number;
   sizeY: number;
-  station_id: number;
+  stationId: number;
 }
 
 type CameraForm = {
   reference: string;
   sizeX: string;
   sizeY: string;
-  station_id: string;
+  stationId: string;
 }
 
 type Station = {
